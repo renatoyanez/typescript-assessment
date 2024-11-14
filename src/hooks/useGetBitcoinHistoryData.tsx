@@ -50,7 +50,7 @@ export const useGetBitcoinHistoryData = () => {
         console.error(error);
       }
     },
-    [url2]
+    [localStorage]
   );
 
   useEffect(() => {
@@ -59,8 +59,6 @@ export const useGetBitcoinHistoryData = () => {
     if (Object.keys(getStorage).length === 0) {
       loadHistory();
     } else {
-      console.log('no lo hace');
-
       setBitcoinHistory(getStorage)
     }
     return () => {
