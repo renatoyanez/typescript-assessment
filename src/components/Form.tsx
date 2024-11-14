@@ -1,54 +1,40 @@
 import React from "react";
-import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
-interface IFormField {
+export interface IFormField {
+  name?: string;
+  value?: string;
+  onChange?: (event?: any) => void;
   label?: string;
   controlId?: string;
   placeholder?: string;
   type?: string;
 }
 
-interface IFormRow {
-  columns?: IFormField[];
-}
-
 interface IFormProps {
-  formFields?: IFormRow[];
+  rows: IFormField[];
 }
 
-const Column = (props: IFormField) => {
+const CustomForm: React.FC<IFormProps> = ({ rows = [] }) => {
   return (
-    <Form.Group className="mb-3" controlId={props.controlId}>
-      <Form.Label>{props.label}</Form.Label>
-      <Form.Control type={props.type} placeholder={props.placeholder} />
-    </Form.Group>
-  );
-};
-
-function CustomForm({ formFields = [] }: IFormProps) {
-  return (
-    <Form>
-      {/* {formFields.map((row) => {
-        return <Column {...row.columns} />;
-      })} */}
-      <Row>
-        <Col>
-          <Form.Group className="mb-3" controlId="formGroupEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" />
+    <Form style={{ padding: "4rem 0" }}>
+      {rows.map((row) => (
+        <Row key={row.controlId}>
+          <Form.Group className="mb-3" controlId={row.controlId}>
+            <Form.Label style={{ display: "flex" }}>{row.label}</Form.Label>
+            <Form.Control
+              name={row.name}
+              value={row.value}
+              onChange={row.onChange}
+              type={row.type}
+              placeholder={row.placeholder}
+            />
           </Form.Group>
-        </Col>
-        <Col>
-          <Form.Group className="mb-3" controlId="formGroupPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" />
-          </Form.Group>
-        </Col>
-      </Row>
+        </Row>
+      ))}
     </Form>
   );
-}
+};
 
 export default CustomForm;
