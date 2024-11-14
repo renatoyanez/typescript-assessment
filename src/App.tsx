@@ -1,21 +1,37 @@
 import { useState, useEffect, useCallback } from "react";
 import Container from "react-bootstrap/Container";
+import Button from "react-bootstrap/Button";
 import { IFakeApiData } from "types/models/fakeApi";
-import { useGetBitcoinHistoryData, useGetBitcoinSixMonths, useGetFakeApiData } from "./hooks";
+import { useGetBitcoinHistoryData, useGetFakeApiData } from "./hooks";
 import ReactEcharts from "echarts-for-react";
 import { AgGridReact } from "ag-grid-react";
-import {
-  ColDef,
-  FirstDataRenderedEvent,
-} from "ag-grid-community";
+import { ColDef, FirstDataRenderedEvent } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
+import FormGroup from './components/Form'
 
 const App = () => {
-  const { bitcoinHistory } = useGetBitcoinHistoryData();
-  const { bitcoinHistory: sixMonths } = useGetBitcoinSixMonths();
-  const {data} = useGetFakeApiData()
+  const { bitcoinHistory } = useGetBitcoinHistoryData(
+    {
+      symbol: "BTCUSDT",
+      interval: "1d",
+      limit: 30,
+    },
+    "line"
+  );
+
+  const { bitcoinHistory: sixMonths } = useGetBitcoinHistoryData(
+    {
+      symbol: "BTCUSDT",
+      interval: "1d",
+      limit: 180,
+    },
+    "scatter"
+  );
+
+  const { data } = useGetFakeApiData();
 
   const [colDefs, setColDefs] = useState<ColDef<IFakeApiData>[]>(
     [] as ColDef<IFakeApiData>[]
@@ -31,13 +47,6 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    parseDataforGrid();
-    return () => {
-      setColDefs([] as ColDef<IFakeApiData>[])
-    };
-  }, [data]);
-
   const defaultColDef: ColDef = {
     flex: 1,
   };
@@ -45,6 +54,13 @@ const App = () => {
   const onFirstDataRendered = useCallback((params: FirstDataRenderedEvent) => {
     params.api.sizeColumnsToFit();
   }, []);
+
+  useEffect(() => {
+    parseDataforGrid();
+    return () => {
+      setColDefs([] as ColDef<IFakeApiData>[]);
+    };
+  }, [data]);
 
   return (
     <Container>
@@ -58,6 +74,7 @@ const App = () => {
           onFirstDataRendered={onFirstDataRendered}
         />
       </div>
+      <FormGroup />
     </Container>
   );
 };

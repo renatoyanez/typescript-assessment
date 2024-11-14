@@ -3,13 +3,16 @@ import {
   TBitcoinHistoryList,
   IEChartOptionBitcoin,
 } from "types/models/bitcoinHistory";
+import { buildChartOptions } from "../lib/chart";
 import { apiGet } from "../api/apiClient";
 import moment from "moment";
 
-const url2 =
-  "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=30";
+const url = import.meta.env.VITE_API_BINANCE_URL;
 
-export const useGetBitcoinHistoryData = () => {
+export const useGetBitcoinHistoryData = (
+  params?: Record<string, unknown>,
+  typeOfChart?: string
+) => {
   const [bitcoinHistory, setBitcoinHistory] = useState<IEChartOptionBitcoin>(
     {} as IEChartOptionBitcoin
   );
@@ -17,7 +20,7 @@ export const useGetBitcoinHistoryData = () => {
   const loadHistory = useMemo(
     () => async () => {
       try {
-        const response = await apiGet(url2);
+        const response = await apiGet(url, { params });
         const responseData: TBitcoinHistoryList = response.data;
 
         const dates = responseData.map((day) => {
@@ -28,42 +31,31 @@ export const useGetBitcoinHistoryData = () => {
           const priceData = price[5];
           return priceData;
         });
-        const option = {
-          xAxis: {
-            type: "category",
-            data: dates,
-          },
-          yAxis: {
-            type: "value",
-          },
-          series: [
-            {
-              name: "name",
-              data: closePrice,
-              type: "line",
-            },
-          ],
-        };
-        setBitcoinHistory(option);
-        localStorage.setItem("30dayBitcoin", JSON.stringify(option));
+        const chartOptions = buildChartOptions(
+          String(typeOfChart),
+          dates,
+          closePrice
+        );
+        setBitcoinHistory(chartOptions);
+        // localStorage.setItem("30dayBitcoin", JSON.stringify(chartOptions));
       } catch (error) {
         console.error(error);
       }
     },
-    [localStorage]
+    []
   );
 
   useEffect(() => {
-    const getStorage = JSON.parse(localStorage.getItem("30dayBitcoin") || "{}");
-    
-    if (Object.keys(getStorage).length === 0) {
-      loadHistory();
-    } else {
-      setBitcoinHistory(getStorage)
-    }
+    // const getStorage = JSON.parse(localStorage.getItem("30dayBitcoin") || "{}");
+
+    // if (Object.keys(getStorage).length === 0) {
+    loadHistory();
+    // } else {
+    //   setBitcoinHistory(getStorage);
+    // }
     return () => {
-      setBitcoinHistory({} as IEChartOptionBitcoin)
-    }
+      setBitcoinHistory({} as IEChartOptionBitcoin);
+    };
   }, [loadHistory]);
 
   return {
