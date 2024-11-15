@@ -3,12 +3,16 @@ import { IEChartOptionBitcoin } from "types/models/bitcoinHistory";
 export const buildChartOptions = (
   type: string,
   xAxisData?: any[],
-  seriesData?: any[]
+  seriesData?: any[],
+  title?: string
 ) => {
   let option: IEChartOptionBitcoin;
   switch (type) {
     case "line":
       option = {
+        title: {
+          text: title || "",
+        },
         xAxis: {
           type: "category",
           data: xAxisData || [],
@@ -27,6 +31,9 @@ export const buildChartOptions = (
       return option;
     case "scatter":
       option = {
+        title: {
+          text: title || "",
+        },
         xAxis: {
           type: "category",
           data: xAxisData || [],
@@ -44,6 +51,9 @@ export const buildChartOptions = (
 
     default:
       option = {
+        title: {
+          text: title || "",
+        },
         xAxis: {
           type: "category",
           data: xAxisData || [],

@@ -2,38 +2,36 @@ import { useState, useEffect, useCallback } from "react";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import { IFakeApiData } from "types/models/fakeApi";
-import { useGetBitcoinHistoryData, useGetFakeApiData } from "../hooks";
-import ReactEcharts from "echarts-for-react";
+import { useGetFakeApiData, useDebounce } from "../hooks";
+import Charts from "../components/Charts";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, FirstDataRenderedEvent } from "ag-grid-community";
 import FormGroup from "../components/Form";
 
 const Home = () => {
+  const { data, handleEditData } = useGetFakeApiData();
+
   const [colDefs, setColDefs] = useState<ColDef<IFakeApiData>[]>(
     [] as ColDef<IFakeApiData>[]
   );
   const [addEntries, setAddEntries] = useState(false);
   const [formData, setFormData] = useState<IFakeApiData>({} as IFakeApiData);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const { bitcoinHistory } = useGetBitcoinHistoryData(
-    {
-      symbol: "BTCUSDT",
-      interval: "1d",
-      limit: 30,
-    },
-    "line"
-  );
+  const search = (query: string) => {
+    const lowerSearch = String(query.toLowerCase());
+    const filteredData = data.filter(
+      (item) => item.city === lowerSearch.toLowerCase()
+    );
+    return filteredData;
+  };
+  const debouncedQuery = useDebounce(searchQuery as string, 1000);
 
-  const { bitcoinHistory: sixMonths } = useGetBitcoinHistoryData(
-    {
-      symbol: "BTCUSDT",
-      interval: "1d",
-      limit: 180,
-    },
-    "scatter"
-  );
-
-  const { data, handleEditData } = useGetFakeApiData();
+  useEffect(() => {
+    setDebouncedSearch(debouncedQuery);
+    search(debouncedQuery);
+  }, [debouncedQuery]);
 
   const parseDataforGrid = () => {
     if (data.length) {
@@ -71,6 +69,7 @@ const Home = () => {
 
   const handleChange = (e: any) => {
     e.preventDefault();
+    setSearchQuery(e.target.value);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -91,12 +90,10 @@ const Home = () => {
       type: "string",
     };
   });
-  // city, sales_rep, state, website, zipcode
 
   return (
     <Container>
-      <ReactEcharts lazyUpdate={true} option={bitcoinHistory} />
-      <ReactEcharts lazyUpdate={true} option={sixMonths} />
+      <Charts />
       <div className="ag-theme-quartz-dark" style={{ height: "500px" }}>
         <AgGridReact<IFakeApiData>
           rowData={data}
@@ -113,8 +110,12 @@ const Home = () => {
         </>
       )}
 
-      <Button onClick={() => setAddEntries(true)}>Add entries</Button>
-      <Button onClick={() => setAddEntries(false)}>Cancel</Button>
+      <section style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
+        <Button onClick={() => setAddEntries(true)}>Add entries</Button>
+        <Button variant="secondary" onClick={() => setAddEntries(false)}>
+          Cancel
+        </Button>
+      </section>
     </Container>
   );
 };

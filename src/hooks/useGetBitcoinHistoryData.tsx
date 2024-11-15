@@ -34,10 +34,10 @@ export const useGetBitcoinHistoryData = (
         const chartOptions = buildChartOptions(
           String(typeOfChart),
           dates,
-          closePrice
+          closePrice,
+          // typeOfChart
         );
         setBitcoinHistory(chartOptions);
-        // localStorage.setItem("30dayBitcoin", JSON.stringify(chartOptions));
       } catch (error) {
         console.error(error);
       }
@@ -46,13 +46,7 @@ export const useGetBitcoinHistoryData = (
   );
 
   useEffect(() => {
-    // const getStorage = JSON.parse(localStorage.getItem("30dayBitcoin") || "{}");
-
-    // if (Object.keys(getStorage).length === 0) {
     loadHistory();
-    // } else {
-    //   setBitcoinHistory(getStorage);
-    // }
     return () => {
       setBitcoinHistory({} as IEChartOptionBitcoin);
     };
