@@ -1,3 +1,28 @@
+# Getting Started
+
+## Clone project
+
+```sh
+git clone https://github.com/renatoyanez/typescript-assessment.git && cd typescript-assessment
+```
+
+## Initialize environment variables
+
+Provided you already installed Node and NPM. Now, just create an `.env` file locally in the root. You can duplicate `.env.example` provided and name the new copy `.env`. Adapt the variables to your needs.
+
+## Install dependencies
+
+```sh
+npm install
+```
+
+# Main Scripts
+
+The only one you're going to need:
+
+### `npm run dev`
+
+
 Assessment
 ========================================
 
